@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-
+import { YOUTUBE_CONFIG } from "../utils/constants";
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
 
 export const searchVideos = createAsyncThunk(
@@ -9,17 +9,22 @@ export const searchVideos = createAsyncThunk(
     try {
       const isString = typeof params === "string";
       const query = isString ? params : params?.query;
-      const maxResults = isString ? 12 : params?.maxResults || 12;
-      const sortBy = isString ? "relevance" : params?.sortBy || "relevance";
+      const maxResults = isString
+        ? YOUTUBE_CONFIG.DEFAULT_MAX_RESULTS
+        : params?.maxResults || YOUTUBE_CONFIG.DEFAULT_MAX_RESULTS;
+
+      const sortBy = isString
+        ? YOUTUBE_CONFIG.DEFAULT_SORT_BY
+        : params?.sortBy || YOUTUBE_CONFIG.DEFAULT_SORT_BY;
 
       const res = await axios.get(
-        "https://www.googleapis.com/youtube/v3/search",
+        `${YOUTUBE_CONFIG.BASE_URL}/youtube/v3/search`,
         {
           params: {
             part: "snippet",
             q: query,
             type: "video",
-            maxResults: maxResults,
+            maxResults,
             order: sortBy,
             key: API_KEY,
           },

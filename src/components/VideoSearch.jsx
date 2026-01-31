@@ -1,16 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  Input,
-  Button,
-  Card,
-  Row,
-  Col,
-  Typography,
-  Space,
-  Segmented,
-  Alert,
-} from "antd";
+import { Input, Button, Row, Col, Typography, Segmented, Alert } from "antd";
 import {
   SearchOutlined,
   HeartOutlined,
@@ -19,6 +9,12 @@ import {
 } from "@ant-design/icons";
 import { searchVideos } from "../redux/videoSlice";
 import QueryModal from "./QueryModal";
+import {
+  selectVideos,
+  selectVideosLoading,
+  selectVideosError,
+} from "../redux/selectors";
+import VideoCard from "./VideoCard";
 
 const { Text, Title } = Typography;
 
@@ -29,11 +25,9 @@ const VideoSearch = () => {
   const [saveData, setSaveData] = useState(null);
 
   const dispatch = useDispatch();
-  const {
-    list: videos,
-    isLoading,
-    error,
-  } = useSelector((state) => state.videos);
+  const videos = useSelector(selectVideos);
+  const isLoading = useSelector(selectVideosLoading);
+  const error = useSelector(selectVideosError);
 
   const handleSearch = () => {
     if (query.trim()) dispatch(searchVideos({ query }));
@@ -75,7 +69,13 @@ const VideoSearch = () => {
       </div>
 
       {error && (
-        <Alert title={error} type="error" showIcon closable className="mb-20" />
+        <Alert
+          description={error}
+          type="error"
+          showIcon
+          closable
+          className="mb-20"
+        />
       )}
 
       <div className="results-header">
@@ -93,38 +93,7 @@ const VideoSearch = () => {
       <Row gutter={[16, 16]}>
         {videos.map((v) => (
           <Col key={v.id.videoId} span={viewMode === "grid" ? 6 : 24}>
-            <Card
-              hoverable
-              styles={{ body: { padding: 12 } }}
-              className={viewMode === "list" ? "video-card-list-wrapper" : ""}
-              cover={
-                <img
-                  alt="thumb"
-                  src={v.snippet.thumbnails.medium.url}
-                  className={
-                    viewMode === "grid"
-                      ? "video-thumb-grid"
-                      : "video-thumb-list"
-                  }
-                />
-              }
-            >
-              <div className={viewMode === "list" ? "video-list-info" : ""}>
-                <Card.Meta
-                  title={v.snippet.title}
-                  description={v.snippet.channelTitle}
-                />
-                <Button
-                  type="link"
-                  danger
-                  href={`https://www.youtube.com{v.id.videoId}`}
-                  target="_blank"
-                  className="p-10-0"
-                >
-                  СМОТРЕТЬ
-                </Button>
-              </div>
-            </Card>
+            <VideoCard video={v} viewMode={viewMode} />
           </Col>
         ))}
       </Row>
@@ -138,4 +107,5 @@ const VideoSearch = () => {
     </div>
   );
 };
+
 export default VideoSearch;

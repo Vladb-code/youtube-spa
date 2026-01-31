@@ -10,18 +10,22 @@ import {
   App as AntdApp,
 } from "antd";
 import { LogoutOutlined, YoutubeOutlined } from "@ant-design/icons";
-import { logout } from "./redux/authSlice";
-import { fetchFavorites } from "./redux/favoritesSlice";
-import AuthForm from "./components/AuthForm";
-import VideoSearch from "./components/VideoSearch";
-import Favorites from "./components/Favorites";
-import "./App.css";
+
+import { logout } from "../redux/authSlice";
+import { fetchFavorites } from "../redux/favoritesSlice";
+import { selectAuthToken } from "../redux/selectors";
+
+import AuthForm from "./AuthForm";
+import VideoSearch from "./VideoSearch";
+import Favorites from "./Favorites";
+import ProtectedRoute from "./ProtectedRoute";
+import "../App.css";
 
 const { Header, Content } = Layout;
 const { Title } = Typography;
 
 function App() {
-  const { token } = useSelector((state) => state.auth);
+  const token = useSelector(selectAuthToken);
   const dispatch = useDispatch();
   const location = useLocation();
 
@@ -37,8 +41,6 @@ function App() {
   return (
     <ConfigProvider theme={{ token: { colorPrimary: "#1677ff" } }}>
       <AntdApp>
-        {" "}
-        {/* Обертка для корректной работы message, modal, notification */}
         <Layout className="app-layout">
           {token && (
             <Header className="header-container">
@@ -63,17 +65,25 @@ function App() {
               </Button>
             </Header>
           )}
+
           <Content className="main-content">
             <div className="content-wrapper">
-              {token ? (
-                <Routes>
+              <Routes>
+                <Route
+                  path="/login"
+                  element={!token ? <AuthForm /> : <Navigate to="/" replace />}
+                />
+
+                <Route element={<ProtectedRoute />}>
                   <Route path="/" element={<VideoSearch />} />
                   <Route path="/favorites" element={<Favorites />} />
-                  <Route path="*" element={<Navigate to="/" />} />
-                </Routes>
-              ) : (
-                <AuthForm />
-              )}
+                </Route>
+
+                <Route
+                  path="*"
+                  element={<Navigate to={token ? "/" : "/login"} replace />}
+                />
+              </Routes>
             </div>
           </Content>
         </Layout>
@@ -81,4 +91,5 @@ function App() {
     </ConfigProvider>
   );
 }
+
 export default App;

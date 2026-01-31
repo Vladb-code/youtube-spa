@@ -11,6 +11,7 @@ import {
 import { useDispatch } from "react-redux";
 import { saveFavorite, editFavorite } from "../redux/favoritesSlice";
 import { useEffect } from "react";
+import { YOUTUBE_CONFIG } from "../utils/constants";
 
 const QueryModal = ({ initialData, onClose }) => {
   const [form] = Form.useForm();
@@ -65,12 +66,19 @@ const QueryModal = ({ initialData, onClose }) => {
           <Row gutter={16} align="middle">
             <Col span={16}>
               <Form.Item name="maxResults" noStyle>
-                <Slider min={1} max={50} />
+                <Slider
+                  min={YOUTUBE_CONFIG.MIN_RESULTS}
+                  max={YOUTUBE_CONFIG.MAX_RESULTS_LIMIT}
+                />
               </Form.Item>
             </Col>
             <Col span={8}>
               <Form.Item name="maxResults" noStyle>
-                <InputNumber min={1} max={50} className="w-100" />
+                <InputNumber
+                  min={YOUTUBE_CONFIG.MIN_RESULTS}
+                  max={YOUTUBE_CONFIG.MAX_RESULTS_LIMIT}
+                  className="w-100"
+                />
               </Form.Item>
             </Col>
           </Row>

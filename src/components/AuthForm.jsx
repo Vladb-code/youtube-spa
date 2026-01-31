@@ -23,7 +23,6 @@ const { Title } = Typography;
 const { Option } = Select;
 
 const AuthForm = () => {
-  // Используем хук для получения API сообщений из контекста <AntdApp>
   const { message } = App.useApp();
 
   const [activeTab, setActiveTab] = useState("login");
@@ -36,7 +35,6 @@ const AuthForm = () => {
         await dispatch(loginUser(values)).unwrap();
         message.success("С возвращением! Вход выполнен.");
       } else {
-        // Гарантируем формат данных для сервера
         const registrationData = {
           ...values,
           age: Number(values.age),
@@ -45,7 +43,6 @@ const AuthForm = () => {
         message.success("Аккаунт успешно создан! Добро пожаловать.");
       }
     } catch (err) {
-      // Сообщение об ошибке теперь тоже идет через контекстный message
       message.error(typeof err === "string" ? err : "Ошибка аутентификации");
     }
   };

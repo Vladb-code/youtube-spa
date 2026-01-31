@@ -1,73 +1,58 @@
 import { useSelector, useDispatch } from "react-redux";
-import { Button, Typography, Space, Card, Popconfirm, Spin, Alert } from "antd";
-import {
-  EditOutlined,
-  DeleteOutlined,
-  PlayCircleOutlined,
-} from "@ant-design/icons";
+import { Typography, Space, Card, Spin, Alert } from "antd";
+
 import { deleteFavorite } from "../redux/favoritesSlice";
 import { searchVideos } from "../redux/videoSlice";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import QueryModal from "./QueryModal";
+import { selectFavorites, selectFavoritesLoading } from "../redux/selectors";
+import FavoriteItem from "./FavoriteItem";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const Favorites = () => {
-  const { items: favorites, isLoading } = useSelector(
-    (state) => state.favorites,
-  );
+  const favorites = useSelector(selectFavorites);
+  const isLoading = useSelector(selectFavoritesLoading);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [editItem, setEditItem] = useState(null);
 
+  const handleExecute = (item) => {
+    dispatch(searchVideos(item));
+    navigate("/");
+  };
+  const handleDelete = (id) => dispatch(deleteFavorite(id));
+  const handleEdit = (item) => setEditItem(item);
+
   return (
     <Card>
       <Title level={3}>Сохраненные запросы</Title>
+
       {isLoading ? (
         <div className="spin-container">
           <Spin size="large" />
         </div>
       ) : favorites.length === 0 ? (
-        <Alert title="Сохраненных запросов пока нет" type="info" />
+        <Alert
+          description="Сохраненных запросов пока нет"
+          type="info"
+          showIcon
+        />
       ) : (
-        <Space orientation="vertical" className="w-100">
+        <Space vertical className="w-100">
           {favorites.map((item) => (
-            <div key={item.id} className="fav-item">
-              <div>
-                <Text strong>{item.title}</Text>
-                <br />
-                <Text type="secondary">{`Запрос: "${item.query}" | Сортировка: ${item.sortBy} | Макс: ${item.maxResults}`}</Text>
-              </div>
-              <Space>
-                <Button
-                  type="primary"
-                  ghost
-                  icon={<PlayCircleOutlined />}
-                  onClick={() => {
-                    dispatch(searchVideos(item));
-                    navigate("/");
-                  }}
-                >
-                  Выполнить
-                </Button>
-                <Button
-                  icon={<EditOutlined />}
-                  onClick={() => setEditItem(item)}
-                >
-                  Правка
-                </Button>
-                <Popconfirm
-                  title="Удалить запрос?"
-                  onConfirm={() => dispatch(deleteFavorite(item.id))}
-                >
-                  <Button danger icon={<DeleteOutlined />} />
-                </Popconfirm>
-              </Space>
-            </div>
+            <FavoriteItem
+              key={item.id}
+              item={item}
+              onExecute={handleExecute}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
           ))}
         </Space>
       )}
+
       {editItem && (
         <QueryModal initialData={editItem} onClose={() => setEditItem(null)} />
       )}
